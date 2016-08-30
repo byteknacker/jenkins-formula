@@ -32,7 +32,7 @@ download_jenkins_cli_jar:
 # Login does not take up too much resources and should always run.
 login_to_jenkins_using_cli:
   cmd.run:
-    - name: "java -jar {{ jenkins.cli_path }} -s {{ jenkins.master_url }} login --username {{ jenkins.admin_user }} --password {{ jenkins.admin_pw }}"
+    - name: "java -jar {{ jenkins.cli_path }} -s {{ jenkins.master_url }} login --username {{ jenkins.admin_user }} --password-file {{ jenkins.home }}/secrets/initialAdminPassword"
     - require:
       - cmd: download_jenkins_cli_jar
 
