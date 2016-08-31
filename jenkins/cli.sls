@@ -29,11 +29,23 @@ download_jenkins_cli_jar:
       - cmd: check_if_jenkins_serves_cli
     - unless: test -e /var/cache/jenkins/jenkins-cli.jar
 
+# Enable slave agent port
+enable_slave_agent_port:
+  file.replace:
+    - name: {{ jenkins.home }}/config.xml
+    - pattern: "<slaveAgentPort>-1</slaveAgentPort>"
+    - repl: "<slaveAgentPort>0</slaveAgentPort>"
+    - show_changes: True
+    - backup: .bak
+    - watch_in:
+      - service: jenkins
+
 # Login does not take up too much resources and should always run.
 login_to_jenkins_using_cli:
   cmd.run:
-    - name: "java -jar {{ jenkins.cli_path }} -s {{ jenkins.master_url }} login --username {{ jenkins.admin_user }} --password {{ jenkins.admin_pw }}"
+    - name: "java -jar {{ jenkins.cli_path }} -s {{ jenkins.master_url }} login --username {{ jenkins.admin_user }} --password-file {{ jenkins.home }}/secrets/initialAdminPassword"
     - require:
+      - file: enable_slave_agent_port
       - cmd: download_jenkins_cli_jar
 
 # Another trivial check.
